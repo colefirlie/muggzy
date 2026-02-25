@@ -37,6 +37,7 @@
       font-size: clamp(22px, 2.2vw, 28px);
       font-weight: 700;
       color: #111;
+      text-decoration: none;
     }
 
     .nav a {
@@ -247,7 +248,7 @@
 <body>
   <header class="site-header">
     <div class="site-header-inner">
-      <div class="brand">Cole Firlie</div>
+      <a class="brand" href="index.html">Cole Firlie</a>
       <nav class="nav" aria-label="Top navigation">
         <a href="index.html">Home</a>
       </nav>
@@ -257,8 +258,8 @@
   <main class="page">
     <div class="arrow-col">
       <div class="arrow-stack">
-        <button id="firstBtn" class="arrow-btn small" aria-label="First (newest) entry">«</button>
         <button id="prevBtn" class="arrow-btn" aria-label="Newer entry">←</button>
+        <button id="firstBtn" class="arrow-btn small" aria-label="First (newest) entry">«</button>
       </div>
     </div>
 
@@ -317,7 +318,6 @@
 
   <script>
     // ===== CONFIG =====
-    // Your GitHub repo that hosts the site:
     const GITHUB_OWNER = 'colefirlie';
     const GITHUB_REPO = 'muggzy';
     const GITHUB_BRANCH = 'main';
@@ -345,7 +345,7 @@
     const prevBtns = [document.getElementById('prevBtn'), document.getElementById('prevBtnMobile')];
     const nextBtns = [document.getElementById('nextBtn'), document.getElementById('nextBtnMobile')];
     const firstBtns = [document.getElementById('firstBtn'), document.getElementById('firstBtnMobile')];
-    const lastBtns = [document.getElementById('lastBtn'), document.getElementById('lastBtnMobile')];
+    const lastBtns  = [document.getElementById('lastBtn'),  document.getElementById('lastBtnMobile')];
 
     // ===== HELPERS =====
     function normalizePosts(arr) {
@@ -354,7 +354,7 @@
         date: typeof p.date === 'string' ? p.date : '',
         body: Array.isArray(p.body) ? p.body.filter(s => typeof s === 'string') : []
       }));
-      // Ensure newest-first by sorting if dates are ISO-ish
+      // Newest-first for ISO-like dates (YYYY-MM-DD)
       cleaned.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
       return cleaned;
     }
@@ -371,14 +371,14 @@
     function fillEditorFromCurrent() {
       const post = posts[current];
       editTitle.value = post.title;
-      editDate.value = post.date;
-      editBody.value = post.body.join('\n\n');
+      editDate.value  = post.date;
+      editBody.value  = post.body.join('\n\n');
     }
 
     function editorToPost() {
       const title = editTitle.value.trim() || 'Untitled';
-      const date = editDate.value.trim();
-      const body = editBody.value
+      const date  = editDate.value.trim();
+      const body  = editBody.value
         .split(/\n{2,}|\r\n\r\n/)
         .map(s => s.trim())
         .filter(Boolean);
@@ -394,16 +394,16 @@
     function renderPost(scrollTop = false) {
       if (!posts.length) {
         titleEl.textContent = 'No posts yet';
-        dateEl.textContent = '';
-        bodyEl.innerHTML = '';
+        dateEl.textContent  = '';
+        bodyEl.innerHTML    = '';
         countEl.textContent = '';
         return;
       }
 
       const post = posts[current];
       titleEl.textContent = post.title;
-      dateEl.textContent = post.date;
-      bodyEl.innerHTML = '';
+      dateEl.textContent  = post.date;
+      bodyEl.innerHTML    = '';
 
       post.body.forEach(par => {
         const p = document.createElement('p');
@@ -425,10 +425,10 @@
       if (scrollTop) window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function goPrev() { if (current > 0) { current -= 1; renderPost(true); } }
-    function goNext() { if (current < posts.length - 1) { current += 1; renderPost(true); } }
+    function goPrev()  { if (current > 0) { current -= 1; renderPost(true); } }
+    function goNext()  { if (current < posts.length - 1) { current += 1; renderPost(true); } }
     function goFirst() { if (current !== 0) { current = 0; renderPost(true); } }
-    function goLast() { if (current !== posts.length - 1) { current = posts.length - 1; renderPost(true); } }
+    function goLast()  { if (current !== posts.length - 1) { current = posts.length - 1; renderPost(true); } }
 
     prevBtns.forEach(btn => btn.addEventListener('click', goPrev));
     nextBtns.forEach(btn => btn.addEventListener('click', goNext));
@@ -443,7 +443,6 @@
     });
 
     function b64EncodeUnicode(str) {
-      // btoa but safe for unicode
       return btoa(unescape(encodeURIComponent(str)));
     }
 
@@ -497,7 +496,7 @@
       if (!adminMode) return;
       posts[current] = editorToPost();
       posts = normalizePosts(posts);
-      current = 0; // keep newest-first view after edits
+      current = 0;
       statusEl.textContent = 'Draft updated (not published)';
       renderPost();
     });
@@ -556,7 +555,7 @@
     (async () => {
       try {
         posts = await fetchPosts();
-        current = 0; // newest first
+        current = 0;
         statusEl.textContent = 'Viewing';
         setAdminUI();
         renderPost();
