@@ -106,9 +106,16 @@
 
     .toolbar {
       display: flex;
-      justify-content: flex-end;
-      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
       margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar .left {
+      color: #666;
+      font-size: 0.9rem;
     }
 
     .toolbar button {
@@ -257,6 +264,7 @@
 
     <article class="article" aria-live="polite">
       <div class="toolbar">
+        <div class="left" id="status">Loading posts…</div>
         <button id="adminBtn" type="button">Edit</button>
       </div>
 
@@ -267,11 +275,11 @@
             <input id="editTitle" type="text" maxlength="180" />
           </div>
           <div>
-            <label for="editDate">Date</label>
-            <input id="editDate" type="text" placeholder="February 25, 2026" maxlength="80" />
+            <label for="editDate">Date (YYYY-MM-DD or anything)</label>
+            <input id="editDate" type="text" placeholder="2026-02-25" maxlength="80" />
           </div>
           <div>
-            <label for="editBody">Body (one paragraph per line)</label>
+            <label for="editBody">Body (one paragraph per blank line)</label>
             <textarea id="editBody"></textarea>
           </div>
         </div>
@@ -281,11 +289,11 @@
           <button id="publishBtn" class="primary" type="button">Publish</button>
           <button id="deletePostBtn" type="button">Delete post</button>
           <button id="exitEditBtn" type="button">Close editor</button>
-          <span class="editor-note">Saved in your browser for now.</span>
+          <span class="editor-note">Publish commits to posts.json on GitHub (you’ll paste a token).</span>
         </div>
       </section>
 
-      <h1 id="postTitle">Loading…</h1>
+      <h1 id="postTitle">—</h1>
       <div class="date" id="postDate"></div>
       <div id="postBody"></div>
 
@@ -308,54 +316,20 @@
   </main>
 
   <script>
-    const STORAGE_KEY = 'cole-blog-posts-v2';
-    const ADMIN_ENABLED_KEY = 'cole-blog-admin-enabled';
-    // This is only a convenience gate for a static site (not real security).
-    const ADMIN_PASSCODE = 'muggzy';
+    // ===== CONFIG =====
+    // Your GitHub repo that hosts the site:
+    const GITHUB_OWNER = 'colefirlie';
+    const GITHUB_REPO = 'muggzy';
+    const GITHUB_BRANCH = 'main';
+    const POSTS_PATH = 'posts.json';
 
-    const defaultPosts = [
-      {
-        title: 'First Post',
-        date: 'February 25, 2026',
-        body: [
-          'This is the first entry in the on-site blog. You can write as much as you want here in plain paragraphs.',
-          'Use the arrows on the sides to move between entries. The newest entry always appears first when someone opens the page.',
-          'If you click Edit and enter your passcode, you can update a post right on the page and press Publish.'
-        ]
-      },
-      {
-        title: 'Another Entry',
-        date: 'February 20, 2026',
-        body: [
-          'This is an older post. You can add as many entries as you want.',
-          'Paragraph spacing is tightened a bit so blocks read clearly without too much vertical drift.'
-        ]
-      }
-    ];
-
-    function cloneDefault() {
-      return JSON.parse(JSON.stringify(defaultPosts));
-    }
-
-    function loadPosts() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return cloneDefault();
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed) || parsed.length === 0) return cloneDefault();
-        return parsed.map(p => ({
-          title: typeof p.title === 'string' ? p.title : 'Untitled',
-          date: typeof p.date === 'string' ? p.date : '',
-          body: Array.isArray(p.body) ? p.body.filter(x => typeof x === 'string') : []
-        }));
-      } catch {
-        return cloneDefault();
-      }
-    }
-
-    let posts = loadPosts();
+    // ===== STATE =====
+    let posts = [];
     let current = 0; // newest first
-    let adminMode = localStorage.getItem(ADMIN_ENABLED_KEY) === '1';
+    let adminMode = false;
+
+    // ===== ELEMENTS =====
+    const statusEl = document.getElementById('status');
 
     const titleEl = document.getElementById('postTitle');
     const dateEl = document.getElementById('postDate');
@@ -373,8 +347,25 @@
     const firstBtns = [document.getElementById('firstBtn'), document.getElementById('firstBtnMobile')];
     const lastBtns = [document.getElementById('lastBtn'), document.getElementById('lastBtnMobile')];
 
-    function savePosts() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    // ===== HELPERS =====
+    function normalizePosts(arr) {
+      const cleaned = (Array.isArray(arr) ? arr : []).map(p => ({
+        title: typeof p.title === 'string' ? p.title : 'Untitled',
+        date: typeof p.date === 'string' ? p.date : '',
+        body: Array.isArray(p.body) ? p.body.filter(s => typeof s === 'string') : []
+      }));
+      // Ensure newest-first by sorting if dates are ISO-ish
+      cleaned.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      return cleaned;
+    }
+
+    async function fetchPosts() {
+      // Cache-bust so updates show quickly
+      const url = `${POSTS_PATH}?v=${Date.now()}`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Could not load ${POSTS_PATH} (HTTP ${res.status})`);
+      const data = await res.json();
+      return normalizePosts(data);
     }
 
     function fillEditorFromCurrent() {
@@ -401,7 +392,14 @@
     }
 
     function renderPost(scrollTop = false) {
-      if (!posts.length) posts = cloneDefault();
+      if (!posts.length) {
+        titleEl.textContent = 'No posts yet';
+        dateEl.textContent = '';
+        bodyEl.innerHTML = '';
+        countEl.textContent = '';
+        return;
+      }
+
       const post = posts[current];
       titleEl.textContent = post.title;
       dateEl.textContent = post.date;
@@ -437,39 +435,80 @@
     firstBtns.forEach(btn => btn.addEventListener('click', goFirst));
     lastBtns.forEach(btn => btn.addEventListener('click', goLast));
 
-    adminBtn.addEventListener('click', () => {
-      if (!adminMode) {
-        const entered = window.prompt('Passcode to edit posts:');
-        if (entered !== ADMIN_PASSCODE) return;
-        adminMode = true;
-        localStorage.setItem(ADMIN_ENABLED_KEY, '1');
-      } else {
-        adminMode = false;
-        localStorage.removeItem(ADMIN_ENABLED_KEY);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+      if (e.key === 'Home') goFirst();
+      if (e.key === 'End') goLast();
+    });
+
+    function b64EncodeUnicode(str) {
+      // btoa but safe for unicode
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    async function getCurrentFileSha(token) {
+      const api = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${POSTS_PATH}?ref=${GITHUB_BRANCH}`;
+      const res = await fetch(api, {
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`GitHub read failed (HTTP ${res.status})`);
+      const json = await res.json();
+      return json.sha || null;
+    }
+
+    async function commitPostsToGitHub(token, newPosts) {
+      const sha = await getCurrentFileSha(token);
+      const api = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${POSTS_PATH}`;
+      const content = JSON.stringify(newPosts, null, 2) + '\n';
+      const payload = {
+        message: `Update ${POSTS_PATH} via blog editor`,
+        content: b64EncodeUnicode(content),
+        branch: GITHUB_BRANCH,
+        ...(sha ? { sha } : {})
+      };
+
+      const res = await fetch(api, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`GitHub write failed (HTTP ${res.status}). ${text}`);
       }
+    }
+
+    // ===== EDIT UI =====
+    adminBtn.addEventListener('click', () => {
+      adminMode = !adminMode;
       setAdminUI();
     });
 
     document.getElementById('saveDraftBtn').addEventListener('click', () => {
       if (!adminMode) return;
       posts[current] = editorToPost();
+      posts = normalizePosts(posts);
+      current = 0; // keep newest-first view after edits
+      statusEl.textContent = 'Draft updated (not published)';
       renderPost();
-    });
-
-    document.getElementById('publishBtn').addEventListener('click', () => {
-      if (!adminMode) return;
-      posts[current] = editorToPost();
-      savePosts();
-      renderPost();
-      alert('Published (saved in this browser).');
     });
 
     document.getElementById('newPostBtn').addEventListener('click', () => {
       if (!adminMode) return;
-      const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-      posts.unshift({ title: 'New Post', date: today, body: ['Write here...'] });
-      current = 0; // newest first
-      savePosts();
+      const todayISO = new Date().toISOString().slice(0, 10);
+      posts.unshift({ title: 'New Post', date: todayISO, body: ['Write here...'] });
+      posts = normalizePosts(posts);
+      current = 0;
+      statusEl.textContent = 'New post created (not published)';
       renderPost();
     });
 
@@ -478,25 +517,58 @@
       if (!confirm('Delete this post?')) return;
       posts.splice(current, 1);
       if (current >= posts.length) current = posts.length - 1;
-      savePosts();
+      statusEl.textContent = 'Post deleted (not published)';
       renderPost();
     });
 
     document.getElementById('exitEditBtn').addEventListener('click', () => {
       adminMode = false;
-      localStorage.removeItem(ADMIN_ENABLED_KEY);
       setAdminUI();
+      statusEl.textContent = 'Viewing';
     });
 
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') goPrev();
-      if (e.key === 'ArrowRight') goNext();
-      if (e.key === 'Home') goFirst();
-      if (e.key === 'End') goLast();
+    document.getElementById('publishBtn').addEventListener('click', async () => {
+      if (!adminMode) return;
+
+      posts[current] = editorToPost();
+      posts = normalizePosts(posts);
+      current = 0;
+      renderPost();
+
+      const token = window.prompt(
+        'Paste a GitHub fine-grained token with Contents: Read & Write for this repo.\n' +
+        'It will NOT be saved — used once to commit posts.json.'
+      );
+      if (!token) return;
+
+      statusEl.textContent = 'Publishing…';
+      try {
+        await commitPostsToGitHub(token.trim(), posts);
+        statusEl.textContent = 'Published! (Committed to posts.json)';
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `Publish failed: ${err.message}`;
+        alert('Publish failed. Open console for details. Common causes: token permissions, wrong repo/branch, or Cloudflare caching.');
+      }
     });
 
-    setAdminUI();
-    renderPost();
+    // ===== BOOT =====
+    (async () => {
+      try {
+        posts = await fetchPosts();
+        current = 0; // newest first
+        statusEl.textContent = 'Viewing';
+        setAdminUI();
+        renderPost();
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `Error: ${err.message}`;
+        posts = normalizePosts([{ title: 'Could not load posts.json', date: '', body: [String(err.message)] }]);
+        current = 0;
+        setAdminUI();
+        renderPost();
+      }
+    })();
   </script>
 </body>
 </html>
