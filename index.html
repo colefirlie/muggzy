@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Hub</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      background: #ececec;
+      color: #111;
+      font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 16px 80px;
+      text-align: center;
+    }
+
+    .logo {
+      margin-top: 10px;
+      margin-bottom: 28px;
+    }
+
+    .logo img {
+      width: min(460px, 90vw);
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin: 10px auto 28px;
+    }
+
+    .hero img {
+      width: min(260px, 58vw);
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin: 12px auto 34px;
+    }
+
+    .btn {
+      --btn-bg: #ff7a7a;
+      position: relative;
+      display: inline-block;
+      min-width: 170px;
+      padding: 14px 20px;
+      text-decoration: none;
+      color: #111;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: var(--btn-bg);
+      border: 3px solid #111;
+      transform: rotate(-1deg);
+      box-shadow: -8px 8px 0 #111;
+      transition: transform 120ms ease;
+    }
+
+    .btn:nth-child(2) { transform: rotate(1deg); }
+    .btn:nth-child(3) { transform: rotate(-2deg); }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-2px) rotate(0deg);
+      outline: none;
+    }
+
+    .btn.videos { --btn-bg: #ff7f7f; }
+    .btn.shop { --btn-bg: #8eb4bd; }
+    .btn.instagram { --btn-bg: #c5ef62; }
+
+    .footer-art {
+      margin-top: 30px;
+    }
+
+    .footer-art img {
+      width: min(260px, 58vw);
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Optional text logo if you don't have an image yet */
+    .logo-text {
+      font-size: clamp(48px, 10vw, 92px);
+      line-height: 0.95;
+      margin: 0;
+      letter-spacing: 2px;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: none; /* set to block if you want text instead of logo image */
+      text-shadow:
+        1px 1px 0 #111,
+        -1px 1px 0 #111,
+        1px -1px 0 #111,
+        -1px -1px 0 #111;
+    }
+
+    @media (max-width: 640px) {
+      .links {
+        gap: 14px;
+      }
+      .btn {
+        min-width: 150px;
+        font-size: 1rem;
+        padding: 12px 16px;
+        box-shadow: -6px 6px 0 #111;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <!-- LOGO: use an image, or switch to the text logo below -->
+    <div class="logo">
+      <!-- Replace with your own logo image -->
+      <img src="logo.png" alt="Site logo" onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block';" />
+      <h1 class="logo-text">YOURNAME</h1>
+    </div>
+
+    <!-- Optional character / doodle image under the logo -->
+    <div class="hero">
+      <img src="character-top.png" alt="Doodle character" onerror="this.style.display='none'" />
+    </div>
+
+    <nav class="links" aria-label="Main links">
+      <a class="btn videos" href="https://your-blog-or-videos-link.com" target="_blank" rel="noopener noreferrer">Videos</a>
+      <a class="btn shop" href="https://your-shop-or-planner-link.com" target="_blank" rel="noopener noreferrer">Shop</a>
+      <a class="btn instagram" href="https://instagram.com/yourhandle" target="_blank" rel="noopener noreferrer">Instagram</a>
+    </nav>
+
+    <!-- Optional image lower on the page (like your example) -->
+    <div class="footer-art">
+      <img src="character-bottom.png" alt="Doodle cat" onerror="this.style.display='none'" />
+    </div>
+  </main>
+</body>
+</html>
