@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Checklist</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      background: #ececec;
+      color: #111;
+      font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .back {
+      display: inline-block;
+      text-decoration: none;
+      color: #111;
+      background: #fff6a8;
+      border: 3px solid #111;
+      box-shadow: -6px 6px 0 #111;
+      padding: 8px 12px;
+      transform: rotate(-2deg);
+    }
+
+    .date {
+      font-size: 0.95rem;
+      opacity: 0.8;
+    }
+
+    .title {
+      margin: 10px 0 16px;
+      text-align: center;
+      font-size: clamp(30px, 6vw, 48px);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-shadow:
+        1px 1px 0 #111,
+        -1px 1px 0 #111,
+        1px -1px 0 #111,
+        -1px -1px 0 #111;
+      color: #f5f5f5;
+    }
+
+    .card {
+      background: #fff;
+      border: 3px solid #111;
+      box-shadow: -8px 8px 0 #111;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .controls input {
+      flex: 1 1 260px;
+      border: 2px solid #111;
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    .btn {
+      border: 2px solid #111;
+      background: #b8e8ff;
+      padding: 10px 12px;
+      font: inherit;
+      cursor: pointer;
+      box-shadow: -4px 4px 0 #111;
+    }
+
+    .btn:active { transform: translateY(1px); }
+    .btn.clear { background: #ffd6d6; }
+    .btn.reset { background: #eee; }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    li.item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 2px solid #111;
+      padding: 10px;
+      background: #fafafa;
+    }
+
+    li.item.done {
+      opacity: 0.75;
+      background: #e8ffe8;
+    }
+
+    .check {
+      width: 22px;
+      height: 22px;
+      accent-color: #111;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .text {
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    li.item.done .text {
+      text-decoration: line-through;
+    }
+
+    .delete {
+      border: 2px solid #111;
+      background: #ffe4a8;
+      width: 34px;
+      height: 34px;
+      cursor: pointer;
+      font-weight: bold;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .meta {
+      margin-top: 14px;
+      font-size: 0.92rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      text-align: center;
+      opacity: 0.7;
+      padding: 12px;
+      border: 2px dashed #111;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="topbar">
+      <a class="back" href="index.html">← Back</a>
+      <div class="date" id="today"></div>
+    </div>
+
+    <h1 class="title">Daily Checklist</h1>
+
+    <section class="card">
+      <div class="controls">
+        <input id="newItem" type="text" placeholder="Add a checklist item..." maxlength="120" />
+        <button class="btn" id="addBtn">Add</button>
+      </div>
+      <div class="controls">
+        <button class="btn clear" id="clearDoneBtn">Clear checked</button>
+        <button class="btn reset" id="resetDailyBtn">Reset all checks</button>
+      </div>
+
+      <ul id="list"></ul>
+      <div id="emptyState" class="empty" hidden>No items yet. Add one above.</div>
+
+      <div class="meta">
+        <span id="progress">0 / 0 done</span>
+        <span>Saved automatically</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'muggzy-daily-checklist-v1';
+
+    const defaultItems = [
+      { text: 'Wake up on time', done: false },
+      { text: 'Drink water', done: false },
+      { text: 'Workout / move', done: false },
+      { text: 'Main priority task', done: false },
+      { text: 'Plan tomorrow', done: false }
+    ];
+
+    const listEl = document.getElementById('list');
+    const emptyStateEl = document.getElementById('emptyState');
+    const progressEl = document.getElementById('progress');
+    const inputEl = document.getElementById('newItem');
+    const addBtn = document.getElementById('addBtn');
+    const clearDoneBtn = document.getElementById('clearDoneBtn');
+    const resetDailyBtn = document.getElementById('resetDailyBtn');
+    const todayEl = document.getElementById('today');
+
+    function todayString() {
+      const d = new Date();
+      return d.toLocaleDateString(undefined, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    todayEl.textContent = todayString();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(defaultItems);
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return structuredClone(defaultItems);
+        return parsed.filter(x => x && typeof x.text === 'string').map(x => ({
+          text: x.text.slice(0, 120),
+          done: !!x.done
+        }));
+      } catch {
+        return structuredClone(defaultItems);
+      }
+    }
+
+    let items = loadState();
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
+
+    function render() {
+      listEl.innerHTML = '';
+
+      if (items.length === 0) {
+        emptyStateEl.hidden = false;
+      } else {
+        emptyStateEl.hidden = true;
+      }
+
+      let doneCount = 0;
+
+      items.forEach((item, index) => {
+        if (item.done) doneCount++;
+
+        const li = document.createElement('li');
+        li.className = 'item' + (item.done ? ' done' : '');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'check';
+        checkbox.checked = item.done;
+        checkbox.addEventListener('change', () => {
+          items[index].done = checkbox.checked;
+          saveState();
+          render();
+        });
+
+        const span = document.createElement('span');
+        span.className = 'text';
+        span.textContent = item.text;
+
+        const del = document.createElement('button');
+        del.className = 'delete';
+        del.type = 'button';
+        del.setAttribute('aria-label', `Delete ${item.text}`);
+        del.textContent = '×';
+        del.addEventListener('click', () => {
+          items.splice(index, 1);
+          saveState();
+          render();
+        });
+
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        li.appendChild(del);
+        listEl.appendChild(li);
+      });
+
+      progressEl.textContent = `${doneCount} / ${items.length} done`;
+    }
+
+    function addItem() {
+      const text = inputEl.value.trim();
+      if (!text) return;
+      items.push({ text, done: false });
+      inputEl.value = '';
+      saveState();
+      render();
+      inputEl.focus();
+    }
+
+    addBtn.addEventListener('click', addItem);
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addItem();
+    });
+
+    clearDoneBtn.addEventListener('click', () => {
+      items = items.filter(item => !item.done);
+      saveState();
+      render();
+    });
+
+    resetDailyBtn.addEventListener('click', () => {
+      items = items.map(item => ({ ...item, done: false }));
+      saveState();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
