@@ -12,13 +12,13 @@
       --maxw:1100px;
 
       /* sizing */
-      --logoW: min(728px, 92vw);   /* ~40% bigger than before */
-      --charW: min(260px, 60vw);   /* keep top & bottom same size */
+      --logoW: min(728px, 92vw);   /* big logo */
+      --charW: min(260px, 60vw);   /* same size top & bottom */
 
-      /* spacing rhythm */
-      --gap: 26px;                /* “base” gap between layers */
-      --gap-small: calc(var(--gap) * 0.85); /* top-character -> boxes (15% smaller) */
-      --gap-big:   calc(var(--gap) * 1.15); /* boxes -> bottom-character (15% larger) */
+      /* spacing rhythm (tightened vs previous) */
+      --gap: 22px;                      /* base gap */
+      --gap-small: calc(var(--gap)*0.85); /* top character -> boxes (15% smaller) */
+      --gap-big:   calc(var(--gap)*1.05); /* boxes -> bottom character (slightly larger) */
     }
 
     *{ box-sizing:border-box; }
@@ -31,23 +31,22 @@
       min-height:100vh;
     }
 
-    /* slightly taller than viewport so you scroll a bit to fully see bottom character */
+    /* Keep a small scroll, but don't create a huge empty band */
     main.wrap{
       width:100%;
       max-width:var(--maxw);
       margin:0 auto;
-      padding:24px 16px 56px;
+      padding:22px 16px 76px;
       text-align:center;
 
       display:flex;
       flex-direction:column;
       align-items:center;
 
-      min-height:112vh;
+      min-height:118vh; /* forces slight scroll */
     }
 
-    /* LOGO */
-    .logo{ margin: 4px 0 var(--gap); }
+    .logo{ margin:4px 0 var(--gap); }
     .logo img{
       width:var(--logoW);
       height:auto;
@@ -71,8 +70,7 @@
         -2px -2px 0 var(--ink);
     }
 
-    /* TOP CHARACTER */
-    .hero{ margin: 0 0 var(--gap-small); }
+    .hero{ margin:0 0 var(--gap-small); }
     .doodle{
       width:var(--charW);
       height:auto;
@@ -80,23 +78,21 @@
       margin:0 auto;
     }
 
-    /* BUTTONS */
     .links{
       display:flex;
       justify-content:center;
       align-items:center;
-      gap:28px;                 /* more spaced apart */
+      gap:26px;
       flex-wrap:wrap;
-      margin:0;                 /* we control spacing via gaps above/below */
+      margin:0;
     }
 
     .btn{
       --btn-bg:#ff7a7a;
       display:inline-block;
-
-      min-width: 220px;         /* larger boxes */
-      padding: 18px 28px;       /* larger boxes */
-      font-size: 1.15rem;
+      min-width:220px;
+      padding:18px 28px;
+      font-size:1.15rem;
 
       text-decoration:none;
       color:var(--ink);
@@ -107,16 +103,16 @@
       border:3px solid var(--ink);
       box-shadow:var(--shadow);
 
-      transform: rotate(-1deg);
-      transition: transform 120ms ease;
+      transform:rotate(-1deg);
+      transition:transform 120ms ease;
     }
 
-    .btn:nth-child(2){ transform: rotate(1deg); }
-    .btn:nth-child(3){ transform: rotate(-2deg); }
+    .btn:nth-child(2){ transform:rotate(1deg); }
+    .btn:nth-child(3){ transform:rotate(-2deg); }
 
     .btn:hover,
     .btn:focus-visible{
-      transform: translateY(-2px) rotate(0deg);
+      transform:translateY(-2px) rotate(0deg);
       outline:none;
     }
 
@@ -124,26 +120,27 @@
     .btn.letterboxd{ --btn-bg:#8eb4bd; }
     .btn.checklist{ --btn-bg:#c5ef62; }
 
-    /* BOTTOM CHARACTER */
+    /* Bottom character: closer to buttons, but page still scrolls because min-height is larger */
     .footer-art{
-      margin-top:auto;          /* keep your “just a bit of scroll” behavior */
-      padding-top:var(--gap-big); /* 15% larger gap vs others */
+      margin-top:auto;
+      padding-top:var(--gap-big);
     }
 
     @media (max-width:640px){
       main.wrap{
         padding-top:18px;
-        min-height:114vh;
+        min-height:120vh;
       }
       .links{ gap:18px; }
       .btn{
-        min-width: 180px;
-        padding: 14px 18px;
-        font-size: 1.05rem;
-        box-shadow: -8px 8px 0 var(--ink);
+        min-width:180px;
+        padding:14px 18px;
+        font-size:1.05rem;
+        box-shadow:-8px 8px 0 var(--ink);
       }
       :root{
-        --logoW: min(680px, 96vw); /* keep logo big on phones too */
+        --logoW: min(680px, 96vw);
+        --gap: 18px;
       }
     }
   </style>
@@ -151,14 +148,12 @@
 <body>
   <main class="wrap">
     <div class="logo">
-      <img src="logo.png" alt="Site logo"
-           onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block';" />
+      <img src="logo.png" alt="Site logo" onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block';" />
       <h1 class="logo-text">EDDIE MUGGS</h1>
     </div>
 
     <div class="hero">
-      <img class="doodle" src="character-top.png" alt="Top character"
-           onerror="this.style.display='none'" />
+      <img class="doodle" src="character-top.png" alt="Top character" onerror="this.style.display='none'" />
     </div>
 
     <nav class="links" aria-label="Main links">
@@ -168,8 +163,7 @@
     </nav>
 
     <div class="footer-art">
-      <img class="doodle" src="character-bottom.png" alt="Bottom character"
-           onerror="this.style.display='none'" />
+      <img class="doodle" src="character-bottom.png" alt="Bottom character" onerror="this.style.display='none'" />
     </div>
   </main>
 </body>
