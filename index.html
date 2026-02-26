@@ -6,35 +6,38 @@
   <title>My Hub</title>
   <style>
     :root{
-      --bg:#ffffff;              /* white background */
+      --bg:#ffffff;
       --ink:#111;
       --shadow:-10px 10px 0 var(--ink);
-      --maxw:1100px;
+      --maxw:1200px; /* slightly wider container so the row can spread */
 
       /* sizing */
       --logoW: min(728px, 92vw);
-      --charW: min(260px, 60vw);     /* bottom character base size */
-      --topScale: 1.22;              /* make top character bigger to visually match */
+      --charW: min(260px, 60vw);
+      --topScale: 1.52; /* +25% from 1.22 */
 
       /* spacing */
       --gap: 18px;
-      --logoToTop: clamp(26px, 4vh, 56px);  /* increase spacing logo -> top character */
 
-      /* pushes buttons down toward ~2/3 viewport */
-      --push-buttons: clamp(95px, 16vh, 190px);
+      /* SHIFT: move top character DOWN toward buttons,
+         while increasing logo->top by the same amount. */
+      --topShift: clamp(28px, 3.5vh, 56px);
+      --logoToTop: calc(clamp(26px, 4vh, 56px) + var(--topShift));
+      --push-buttons: calc(clamp(95px, 16vh, 190px) - var(--topShift));
 
-      /* push bottom character further down so only ~half shows initially */
+      /* bottom placement / slight scroll */
       --between: clamp(88px, 13vh, 160px);
-
-      /* forces slight scroll to see full bottom character */
       --scrollpad: clamp(55px, 8vh, 110px);
 
       /* buttons */
       --btn-minw: 220px;
-      --btn-pad-y: 18px;
-      --btn-pad-x: 28px;
-      --btn-gap: 26px;
+      --btn-gap: 44px;         /* wider spacing between boxes */
       --btn-font: 1.15rem;
+
+      /* make boxes 30% taller */
+      --btn-pad-y: 24px;       /* was 18px */
+      --btn-pad-x: 28px;
+      --btn-minh: 74px;        /* gives consistent height even if text wraps */
     }
 
     *{ box-sizing:border-box; }
@@ -57,7 +60,6 @@
       display:flex;
       flex-direction:column;
       align-items:center;
-
       min-height: 100vh;
     }
 
@@ -69,7 +71,6 @@
       margin:0 auto;
     }
 
-    /* fallback if logo.png missing */
     .logo-text{
       font-size:clamp(52px,10vw,100px);
       line-height:0.95;
@@ -86,7 +87,7 @@
         -2px -2px 0 var(--ink);
     }
 
-    /* Increased spacing logo -> top character */
+    /* increased logo->top spacing */
     .hero{ margin-top: var(--logoToTop); margin-bottom: 0; }
 
     .doodle{
@@ -96,12 +97,12 @@
       margin:0 auto;
     }
 
-    /* Top character gets a boost (helps if image has extra transparent padding) */
+    /* top character scale */
     .doodle-top{
       width: calc(var(--charW) * var(--topScale));
     }
 
-    /* Spacer to push buttons down */
+    /* reduced space between top char and buttons by decreasing this spacer */
     .push-to-buttons{
       height: var(--push-buttons);
       width: 100%;
@@ -118,9 +119,12 @@
 
     .btn{
       --btn-bg:#ff7a7a;
-      display:inline-block;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
 
       min-width: var(--btn-minw);
+      min-height: var(--btn-minh); /* makes them taller consistently */
       padding: var(--btn-pad-y) var(--btn-pad-x);
       font-size: var(--btn-font);
 
@@ -150,26 +154,28 @@
     .btn.letterboxd{ --btn-bg:#8eb4bd; }
     .btn.checklist{ --btn-bg:#c5ef62; }
 
-    /* Spacer between buttons and bottom character (makes only half visible at top scroll) */
     .between{ height: var(--between); width:100%; }
-
     .footer-art{ margin:0; }
-
-    /* Scroll pad after bottom character so you scroll slightly to see it all */
     .scroll-pad{ height: var(--scrollpad); width:100%; }
 
     @media (max-width:640px){
       :root{
+        --maxw:1100px;
         --logoW: min(680px, 96vw);
+
         --btn-minw: 180px;
-        --btn-pad-y: 14px;
-        --btn-pad-x: 18px;
-        --btn-gap: 18px;
+        --btn-gap: 22px;
         --btn-font: 1.05rem;
 
-        --topScale: 1.18;
-        --logoToTop: clamp(18px, 4vh, 40px);
-        --push-buttons: clamp(70px, 14vh, 140px);
+        --btn-pad-y: 20px;
+        --btn-pad-x: 18px;
+        --btn-minh: 66px;
+
+        --topScale: 1.44;
+        --topShift: clamp(18px, 3vh, 34px);
+        --logoToTop: calc(clamp(18px, 4vh, 40px) + var(--topShift));
+        --push-buttons: calc(clamp(70px, 14vh, 140px) - var(--topShift));
+
         --between: clamp(70px, 12vh, 140px);
         --scrollpad: clamp(50px, 9vh, 95px);
       }
