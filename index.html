@@ -6,27 +6,28 @@
   <title>My Hub</title>
   <style>
     :root{
-      --bg:#ffffff;              /* ✅ white background */
+      --bg:#ffffff;              /* white background */
       --ink:#111;
       --shadow:-10px 10px 0 var(--ink);
       --maxw:1100px;
 
       /* sizing */
       --logoW: min(728px, 92vw);
-      --charW: min(260px, 60vw);
+      --charW: min(260px, 60vw);     /* bottom character base size */
+      --topScale: 1.22;              /* make top character bigger to visually match */
 
-      /* spacing targets */
+      /* spacing */
       --gap: 18px;
-      --gap-small: calc(var(--gap) * 0.85);
+      --logoToTop: clamp(26px, 4vh, 56px);  /* increase spacing logo -> top character */
 
-      /* ✅ pushes buttons down toward ~2/3 viewport */
-      --push-buttons: clamp(110px, 18vh, 220px);
+      /* pushes buttons down toward ~2/3 viewport */
+      --push-buttons: clamp(95px, 16vh, 190px);
 
-      /* controlled spacing between buttons and bottom character */
-      --between: clamp(46px, 7vh, 78px);
+      /* push bottom character further down so only ~half shows initially */
+      --between: clamp(88px, 13vh, 160px);
 
-      /* ✅ forces slight scroll to see full bottom character */
-      --scrollpad: clamp(70px, 10vh, 130px);
+      /* forces slight scroll to see full bottom character */
+      --scrollpad: clamp(55px, 8vh, 110px);
 
       /* buttons */
       --btn-minw: 220px;
@@ -57,11 +58,10 @@
       flex-direction:column;
       align-items:center;
 
-      /* keep layout stable */
       min-height: 100vh;
     }
 
-    .logo{ margin: 4px 0 var(--gap); }
+    .logo{ margin: 4px 0 0; }
     .logo img{
       width:var(--logoW);
       height:auto;
@@ -69,6 +69,7 @@
       margin:0 auto;
     }
 
+    /* fallback if logo.png missing */
     .logo-text{
       font-size:clamp(52px,10vw,100px);
       line-height:0.95;
@@ -85,7 +86,8 @@
         -2px -2px 0 var(--ink);
     }
 
-    .hero{ margin: 0 0 var(--gap-small); }
+    /* Increased spacing logo -> top character */
+    .hero{ margin-top: var(--logoToTop); margin-bottom: 0; }
 
     .doodle{
       width:var(--charW);
@@ -94,7 +96,12 @@
       margin:0 auto;
     }
 
-    /* ✅ key spacer to push buttons down */
+    /* Top character gets a boost (helps if image has extra transparent padding) */
+    .doodle-top{
+      width: calc(var(--charW) * var(--topScale));
+    }
+
+    /* Spacer to push buttons down */
     .push-to-buttons{
       height: var(--push-buttons);
       width: 100%;
@@ -143,26 +150,28 @@
     .btn.letterboxd{ --btn-bg:#8eb4bd; }
     .btn.checklist{ --btn-bg:#c5ef62; }
 
+    /* Spacer between buttons and bottom character (makes only half visible at top scroll) */
     .between{ height: var(--between); width:100%; }
 
     .footer-art{ margin:0; }
 
-    /* ✅ scroll just a bit to see full bottom character */
+    /* Scroll pad after bottom character so you scroll slightly to see it all */
     .scroll-pad{ height: var(--scrollpad); width:100%; }
 
     @media (max-width:640px){
       :root{
         --logoW: min(680px, 96vw);
-        --gap: 14px;
         --btn-minw: 180px;
         --btn-pad-y: 14px;
         --btn-pad-x: 18px;
         --btn-gap: 18px;
         --btn-font: 1.05rem;
 
-        --push-buttons: clamp(70px, 14vh, 150px);
-        --between: clamp(36px, 6vh, 64px);
-        --scrollpad: clamp(60px, 10vh, 120px);
+        --topScale: 1.18;
+        --logoToTop: clamp(18px, 4vh, 40px);
+        --push-buttons: clamp(70px, 14vh, 140px);
+        --between: clamp(70px, 12vh, 140px);
+        --scrollpad: clamp(50px, 9vh, 95px);
       }
       main.wrap{ padding-top:14px; }
       .btn{ box-shadow:-8px 8px 0 var(--ink); }
@@ -178,7 +187,7 @@
     </div>
 
     <div class="hero">
-      <img class="doodle" src="character-top.png" alt="Top character"
+      <img class="doodle doodle-top" src="character-top.png" alt="Top character"
            onerror="this.style.display='none'" />
     </div>
 
