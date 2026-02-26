@@ -6,24 +6,27 @@
   <title>My Hub</title>
   <style>
     :root{
-      --bg:#ececec;
+      --bg:#ffffff;              /* ✅ white background */
       --ink:#111;
       --shadow:-10px 10px 0 var(--ink);
       --maxw:1100px;
 
       /* sizing */
-      --logoW: min(728px, 92vw);      /* big logo */
-      --charW: min(260px, 60vw);      /* same size top & bottom */
+      --logoW: min(728px, 92vw);
+      --charW: min(260px, 60vw);
 
-      /* rhythm */
-      --gap: 22px;                    /* base gap */
-      --gap-small: calc(var(--gap) * 0.85); /* top char -> buttons (15% smaller) */
+      /* spacing targets */
+      --gap: 18px;
+      --gap-small: calc(var(--gap) * 0.85);
 
-      /* IMPORTANT: controls the buttons -> bottom character distance (tight like mockup) */
-      --between: clamp(54px, 8vh, 92px);
+      /* ✅ pushes buttons down toward ~2/3 viewport */
+      --push-buttons: clamp(110px, 18vh, 220px);
 
-      /* ensures you must scroll slightly, WITHOUT affecting buttons->bottom gap */
-      --scrollpad: clamp(70px, 9vh, 120px);
+      /* controlled spacing between buttons and bottom character */
+      --between: clamp(46px, 7vh, 78px);
+
+      /* ✅ forces slight scroll to see full bottom character */
+      --scrollpad: clamp(70px, 10vh, 130px);
 
       /* buttons */
       --btn-minw: 220px;
@@ -47,12 +50,15 @@
       width:100%;
       max-width:var(--maxw);
       margin:0 auto;
-      padding:22px 16px 0;
+      padding:18px 16px 0;
       text-align:center;
 
       display:flex;
       flex-direction:column;
       align-items:center;
+
+      /* keep layout stable */
+      min-height: 100vh;
     }
 
     .logo{ margin: 4px 0 var(--gap); }
@@ -63,7 +69,6 @@
       margin:0 auto;
     }
 
-    /* optional fallback if logo.png missing */
     .logo-text{
       font-size:clamp(52px,10vw,100px);
       line-height:0.95;
@@ -87,6 +92,12 @@
       height:auto;
       display:block;
       margin:0 auto;
+    }
+
+    /* ✅ key spacer to push buttons down */
+    .push-to-buttons{
+      height: var(--push-buttons);
+      width: 100%;
     }
 
     .links{
@@ -132,27 +143,28 @@
     .btn.letterboxd{ --btn-bg:#8eb4bd; }
     .btn.checklist{ --btn-bg:#c5ef62; }
 
-    /* controlled spacer between buttons and bottom character (prevents the huge empty band) */
-    .between{ height: var(--between); width: 100%; }
+    .between{ height: var(--between); width:100%; }
 
-    .footer-art{ margin: 0; }
+    .footer-art{ margin:0; }
 
-    /* extra content after bottom to force slight scroll without increasing the gap above */
-    .scroll-pad{ height: var(--scrollpad); width: 100%; }
+    /* ✅ scroll just a bit to see full bottom character */
+    .scroll-pad{ height: var(--scrollpad); width:100%; }
 
     @media (max-width:640px){
       :root{
         --logoW: min(680px, 96vw);
-        --gap: 18px;
+        --gap: 14px;
         --btn-minw: 180px;
         --btn-pad-y: 14px;
         --btn-pad-x: 18px;
         --btn-gap: 18px;
         --btn-font: 1.05rem;
-        --between: clamp(44px, 7vh, 78px);
-        --scrollpad: clamp(60px, 9vh, 110px);
+
+        --push-buttons: clamp(70px, 14vh, 150px);
+        --between: clamp(36px, 6vh, 64px);
+        --scrollpad: clamp(60px, 10vh, 120px);
       }
-      main.wrap{ padding-top:18px; }
+      main.wrap{ padding-top:14px; }
       .btn{ box-shadow:-8px 8px 0 var(--ink); }
     }
   </style>
@@ -169,6 +181,8 @@
       <img class="doodle" src="character-top.png" alt="Top character"
            onerror="this.style.display='none'" />
     </div>
+
+    <div class="push-to-buttons"></div>
 
     <nav class="links" aria-label="Main links">
       <a class="btn blog" href="blog.html">Blog</a>
