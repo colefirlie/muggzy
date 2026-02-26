@@ -12,13 +12,25 @@
       --maxw:1100px;
 
       /* sizing */
-      --logoW: min(728px, 92vw);   /* big logo */
-      --charW: min(260px, 60vw);   /* same size top & bottom */
+      --logoW: min(728px, 92vw);      /* big logo */
+      --charW: min(260px, 60vw);      /* same size top & bottom */
 
-      /* spacing rhythm (tightened vs previous) */
-      --gap: 22px;                      /* base gap */
-      --gap-small: calc(var(--gap)*0.85); /* top character -> boxes (15% smaller) */
-      --gap-big:   calc(var(--gap)*1.05); /* boxes -> bottom character (slightly larger) */
+      /* rhythm */
+      --gap: 22px;                    /* base gap */
+      --gap-small: calc(var(--gap) * 0.85); /* top char -> buttons (15% smaller) */
+
+      /* IMPORTANT: controls the buttons -> bottom character distance (tight like mockup) */
+      --between: clamp(54px, 8vh, 92px);
+
+      /* ensures you must scroll slightly, WITHOUT affecting buttons->bottom gap */
+      --scrollpad: clamp(70px, 9vh, 120px);
+
+      /* buttons */
+      --btn-minw: 220px;
+      --btn-pad-y: 18px;
+      --btn-pad-x: 28px;
+      --btn-gap: 26px;
+      --btn-font: 1.15rem;
     }
 
     *{ box-sizing:border-box; }
@@ -31,22 +43,19 @@
       min-height:100vh;
     }
 
-    /* Keep a small scroll, but don't create a huge empty band */
     main.wrap{
       width:100%;
       max-width:var(--maxw);
       margin:0 auto;
-      padding:22px 16px 76px;
+      padding:22px 16px 0;
       text-align:center;
 
       display:flex;
       flex-direction:column;
       align-items:center;
-
-      min-height:118vh; /* forces slight scroll */
     }
 
-    .logo{ margin:4px 0 var(--gap); }
+    .logo{ margin: 4px 0 var(--gap); }
     .logo img{
       width:var(--logoW);
       height:auto;
@@ -54,6 +63,7 @@
       margin:0 auto;
     }
 
+    /* optional fallback if logo.png missing */
     .logo-text{
       font-size:clamp(52px,10vw,100px);
       line-height:0.95;
@@ -70,7 +80,8 @@
         -2px -2px 0 var(--ink);
     }
 
-    .hero{ margin:0 0 var(--gap-small); }
+    .hero{ margin: 0 0 var(--gap-small); }
+
     .doodle{
       width:var(--charW);
       height:auto;
@@ -82,7 +93,7 @@
       display:flex;
       justify-content:center;
       align-items:center;
-      gap:26px;
+      gap: var(--btn-gap);
       flex-wrap:wrap;
       margin:0;
     }
@@ -90,9 +101,10 @@
     .btn{
       --btn-bg:#ff7a7a;
       display:inline-block;
-      min-width:220px;
-      padding:18px 28px;
-      font-size:1.15rem;
+
+      min-width: var(--btn-minw);
+      padding: var(--btn-pad-y) var(--btn-pad-x);
+      font-size: var(--btn-font);
 
       text-decoration:none;
       color:var(--ink);
@@ -120,40 +132,42 @@
     .btn.letterboxd{ --btn-bg:#8eb4bd; }
     .btn.checklist{ --btn-bg:#c5ef62; }
 
-    /* Bottom character: closer to buttons, but page still scrolls because min-height is larger */
-    .footer-art{
-      margin-top:auto;
-      padding-top:var(--gap-big);
-    }
+    /* controlled spacer between buttons and bottom character (prevents the huge empty band) */
+    .between{ height: var(--between); width: 100%; }
+
+    .footer-art{ margin: 0; }
+
+    /* extra content after bottom to force slight scroll without increasing the gap above */
+    .scroll-pad{ height: var(--scrollpad); width: 100%; }
 
     @media (max-width:640px){
-      main.wrap{
-        padding-top:18px;
-        min-height:120vh;
-      }
-      .links{ gap:18px; }
-      .btn{
-        min-width:180px;
-        padding:14px 18px;
-        font-size:1.05rem;
-        box-shadow:-8px 8px 0 var(--ink);
-      }
       :root{
         --logoW: min(680px, 96vw);
         --gap: 18px;
+        --btn-minw: 180px;
+        --btn-pad-y: 14px;
+        --btn-pad-x: 18px;
+        --btn-gap: 18px;
+        --btn-font: 1.05rem;
+        --between: clamp(44px, 7vh, 78px);
+        --scrollpad: clamp(60px, 9vh, 110px);
       }
+      main.wrap{ padding-top:18px; }
+      .btn{ box-shadow:-8px 8px 0 var(--ink); }
     }
   </style>
 </head>
 <body>
   <main class="wrap">
     <div class="logo">
-      <img src="logo.png" alt="Site logo" onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block';" />
+      <img src="logo.png" alt="Site logo"
+           onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block';" />
       <h1 class="logo-text">EDDIE MUGGS</h1>
     </div>
 
     <div class="hero">
-      <img class="doodle" src="character-top.png" alt="Top character" onerror="this.style.display='none'" />
+      <img class="doodle" src="character-top.png" alt="Top character"
+           onerror="this.style.display='none'" />
     </div>
 
     <nav class="links" aria-label="Main links">
@@ -162,9 +176,14 @@
       <a class="btn checklist" href="daily_checklist.html">Checklist</a>
     </nav>
 
+    <div class="between"></div>
+
     <div class="footer-art">
-      <img class="doodle" src="character-bottom.png" alt="Bottom character" onerror="this.style.display='none'" />
+      <img class="doodle" src="character-bottom.png" alt="Bottom character"
+           onerror="this.style.display='none'" />
     </div>
+
+    <div class="scroll-pad"></div>
   </main>
 </body>
 </html>
