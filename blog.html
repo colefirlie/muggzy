@@ -3,650 +3,571 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daily Checklist</title>
+  <title>Blog</title>
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
 
-    :root{
-      --ink:#111;
-      --bg:#ececec;
-      --card:#fff;
-      --add-blue:#b8e8ff;
-      --danger:#ffd6d6;
-      --warn:#ffe4a8;
-      --pale:#fafafa;
-      --done:#e8ffe8;
-      --done-strong:#bfeec7; /* slightly deeper green */
-      --insert-line:#111;
-    }
-
     body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
-      min-height: 100vh;
+      background: #efefef;
+      color: #222;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.48;
     }
 
-    .wrap {
-      width: 100%;
-      max-width: 760px;
+    .site-header {
+      border-bottom: 1px solid #222;
+      background: #efefef;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .site-header-inner {
+      max-width: 1320px;
       margin: 0 auto;
-      padding: 24px 16px 64px;
-      position: relative;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
     }
 
-    .topbar {
+    .brand {
+      font-size: clamp(22px, 2.2vw, 28px);
+      font-weight: 700;
+      color: #111;
+      text-decoration: none;
+    }
+
+    .nav a {
+      color: #222;
+      text-decoration: none;
+      font-size: 0.98rem;
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 88px minmax(0, 760px) 88px;
+      gap: 8px;
+      align-items: start;
+    }
+
+    .arrow-col {
+      position: sticky;
+      top: 88px;
+      height: calc(100vh - 100px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .arrow-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .arrow-btn {
+      width: 48px;
+      height: 48px;
+      border: 1px solid #222;
+      border-radius: 999px;
+      background: #f8f8f8;
+      color: #111;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .arrow-btn.small {
+      width: 42px;
+      height: 42px;
+      font-size: 18px;
+    }
+
+    .arrow-btn:hover { background: #fff; }
+    .arrow-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+      background: #efefef;
+    }
+
+    .article {
+      padding: 8px 0 32px;
+      min-height: calc(100vh - 140px);
+    }
+
+    .toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-
-    .back {
-      display: inline-block;
-      text-decoration: none;
-      color: var(--ink);
-      background: #fff6a8;
-      border: 3px solid var(--ink);
-      box-shadow: -6px 6px 0 var(--ink);
-      padding: 8px 12px;
-      transform: rotate(-2deg);
-    }
-
-    .date {
-      font-size: 0.95rem;
-      opacity: 0.8;
-    }
-
-    .title-wrap{
-      position: relative;
-      display: grid;
-      place-items: center;
-      margin: 10px 0 16px;
-    }
-
-    .title {
-      position: relative;
-      margin: 0;
-      text-align: center;
-      font-size: clamp(30px, 6vw, 48px);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-shadow:
-        1px 1px 0 var(--ink),
-        -1px 1px 0 var(--ink),
-        1px -1px 0 var(--ink),
-        -1px -1px 0 var(--ink);
-      color: var(--add-blue);
-      display: inline-block;
-      padding: 2px 6px;
-    }
-
-    .title::after{
-      content:"";
-      position:absolute;
-      left:-2%;
-      top:55%;
-      height:4px;
-      width:0%;
-      background: var(--ink);
-      transform: rotate(-3deg);
-      transform-origin: left center;
-      opacity: 0;
-    }
-
-    .title.done::after{
-      animation: titleStrike 700ms ease forwards;
-    }
-
-    @keyframes titleStrike{
-      0%{ width:0%; opacity:0; }
-      20%{ opacity:1; }
-      100%{ width:104%; opacity:1; }
-    }
-
-    .card {
-      background: var(--card);
-      border: 3px solid var(--ink);
-      box-shadow: -8px 8px 0 var(--ink);
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-
-    .controls {
-      display: flex;
       gap: 10px;
       margin-bottom: 12px;
       flex-wrap: wrap;
     }
 
-    .controls input {
-      flex: 1 1 260px;
-      border: 2px solid var(--ink);
-      padding: 10px 12px;
-      font: inherit;
+    .toolbar .left {
+      color: #666;
+      font-size: 0.9rem;
     }
 
-    .btn {
-      border: 2px solid var(--ink);
-      background: var(--add-blue);
-      padding: 10px 12px;
+    .toolbar button {
+      border: 1px solid #222;
+      background: #fafafa;
+      padding: 6px 10px;
       font: inherit;
       cursor: pointer;
-      box-shadow: -4px 4px 0 var(--ink);
-      user-select: none;
     }
 
-    .btn:active { transform: translateY(1px); }
-    .btn.clear { background: var(--danger); }
-    .btn.reset { background: #eee; }
+    .toolbar button:hover { background: #fff; }
 
-    ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
+    .article h1 {
+      margin: 0 0 4px;
+      font-size: clamp(28px, 3.3vw, 40px);
+      line-height: 1.1;
+      color: #111;
+    }
+
+    .article .date {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 18px;
+    }
+
+    .article p {
+      margin: 0 0 12px;
+      font-size: 1.02rem;
+      color: #2a2a2a;
+      line-height: 1.42;
+    }
+
+    .article p:last-child { margin-bottom: 0; }
+
+    .editor {
+      display: none;
+      border: 1px solid #222;
+      background: #f7f7f7;
+      padding: 12px;
+      margin: 0 0 16px;
+    }
+
+    .editor.active { display: block; }
+
+    .editor-grid {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
 
-    li.item {
-      position: relative;
+    .editor label {
+      font-size: 0.9rem;
+      color: #444;
+    }
+
+    .editor input,
+    .editor textarea {
+      width: 100%;
+      border: 1px solid #222;
+      background: #fff;
+      padding: 8px;
+      font: inherit;
+    }
+
+    .editor textarea {
+      min-height: 180px;
+      resize: vertical;
+      line-height: 1.35;
+    }
+
+    .editor-actions {
+      margin-top: 10px;
       display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       align-items: center;
-      gap: 10px;
-      border: 2px solid var(--ink);
-      padding: 10px;
-      background: var(--pale);
+    }
+
+    .editor-actions button {
+      border: 1px solid #222;
+      background: #fff;
+      padding: 8px 10px;
+      font: inherit;
       cursor: pointer;
-      user-select: none;
     }
 
-    li.item.dragging { opacity: 0.5; }
-
-    /* Thin insertion line */
-    li.item.drop-before::before,
-    li.item.drop-after::after {
-      content: "";
-      position: absolute;
-      left: 8px;
-      right: 8px;
-      height: 3px;
-      background: var(--insert-line);
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.55);
-      border-radius: 99px;
-      pointer-events: none;
+    .editor-actions .primary {
+      background: #e8f0ff;
+      font-weight: 600;
     }
 
-    li.item.drop-before::before { top: -7px; }
-    li.item.drop-after::after { bottom: -7px; }
-
-    li.item.done {
-      opacity: 0.9;
-      background: var(--done);
+    .editor-note {
+      color: #666;
+      font-size: 0.86rem;
     }
 
-    li.item.all-done {
-      background: var(--done-strong);
-    }
-
-    .check {
-      width: 22px;
-      height: 22px;
-      accent-color: var(--ink);
-      cursor: pointer;
-      flex: 0 0 auto;
-    }
-
-    .text {
-      flex: 1;
-      min-width: 0;
-      word-break: break-word;
-    }
-
-    li.item.done .text { text-decoration: line-through; }
-
-    .delete {
-      border: 2px solid var(--ink);
-      background: var(--warn);
-      width: 34px;
-      height: 34px;
-      cursor: pointer;
-      font-weight: bold;
-      line-height: 1;
-      flex: 0 0 auto;
-    }
-
-    .meta {
-      margin-top: 14px;
-      font-size: 0.92rem;
-      display: flex;
-      justify-content: space-between;
+    .mobile-controls {
+      display: none;
+      margin-top: 22px;
       gap: 8px;
       flex-wrap: wrap;
+      justify-content: center;
     }
 
-    .empty {
+    .mobile-controls .arrow-btn {
+      width: auto;
+      min-width: 70px;
+      border-radius: 0;
+      padding: 10px 12px;
+      font-size: 15px;
+      gap: 6px;
+      height: auto;
+    }
+
+    .post-count {
+      color: #666;
+      font-size: 0.94rem;
       text-align: center;
-      opacity: 0.7;
-      padding: 12px;
-      border: 2px dashed var(--ink);
-      background: var(--card);
+      margin-top: 14px;
     }
 
-    .celebrate li.item {
-      animation: flashPalette 250ms linear infinite;
-    }
-
-    @keyframes flashPalette {
-      0%   { background: var(--done); }
-      25%  { background: var(--add-blue); }
-      50%  { background: var(--warn); }
-      75%  { background: var(--danger); }
-      100% { background: var(--done); }
-    }
-
-    #confetti {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 9999;
-      display: none;
-    }
-
-    @media (max-width: 640px) {
-      .controls { gap: 14px; }
-      .btn { box-shadow: -3px 3px 0 var(--ink); }
+    @media (max-width: 920px) {
+      .page { grid-template-columns: 1fr; }
+      .arrow-col { display: none; }
+      .article { min-height: auto; }
+      .mobile-controls { display: flex; }
     }
   </style>
 </head>
 <body>
-  <canvas id="confetti"></canvas>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="index.html">Cole Firlie</a>
+      <nav class="nav" aria-label="Top navigation">
+        <a href="index.html">Home</a>
+      </nav>
+    </div>
+  </header>
 
-  <main class="wrap">
-    <div class="topbar">
-      <a class="back" href="index.html">← Back</a>
-      <div class="date" id="today"></div>
+  <main class="page">
+    <div class="arrow-col">
+      <div class="arrow-stack">
+        <button id="prevBtn" class="arrow-btn" aria-label="Newer entry">←</button>
+        <button id="firstBtn" class="arrow-btn small" aria-label="First (newest) entry">«</button>
+      </div>
     </div>
 
-    <div class="title-wrap">
-      <h1 class="title" id="title">Daily Checklist</h1>
+    <article class="article" aria-live="polite">
+      <div class="toolbar">
+        <div class="left" id="status">Loading posts…</div>
+        <button id="adminBtn" type="button">Edit</button>
+      </div>
+
+      <section id="editorPanel" class="editor" aria-label="Post editor">
+        <div class="editor-grid">
+          <div>
+            <label for="editTitle">Title</label>
+            <input id="editTitle" type="text" maxlength="180" />
+          </div>
+          <div>
+            <label for="editDate">Date (YYYY-MM-DD or anything)</label>
+            <input id="editDate" type="text" placeholder="2026-02-25" maxlength="80" />
+          </div>
+          <div>
+            <label for="editBody">Body (one paragraph per blank line)</label>
+            <textarea id="editBody"></textarea>
+          </div>
+        </div>
+        <div class="editor-actions">
+          <button id="newPostBtn" type="button">New post</button>
+          <button id="saveDraftBtn" type="button">Save edits</button>
+          <button id="publishBtn" class="primary" type="button">Publish</button>
+          <button id="deletePostBtn" type="button">Delete post</button>
+          <button id="exitEditBtn" type="button">Close editor</button>
+          <span class="editor-note">Publish commits to posts.json on GitHub (you’ll paste a token).</span>
+        </div>
+      </section>
+
+      <h1 id="postTitle">—</h1>
+      <div class="date" id="postDate"></div>
+      <div id="postBody"></div>
+
+      <div class="mobile-controls">
+        <button id="firstBtnMobile" class="arrow-btn" aria-label="First (newest) entry">« First</button>
+        <button id="prevBtnMobile" class="arrow-btn" aria-label="Newer entry">← Newer</button>
+        <button id="nextBtnMobile" class="arrow-btn" aria-label="Older entry">Older →</button>
+        <button id="lastBtnMobile" class="arrow-btn" aria-label="Last (oldest) entry">Last »</button>
+      </div>
+
+      <div class="post-count" id="postCount"></div>
+    </article>
+
+    <div class="arrow-col">
+      <div class="arrow-stack">
+        <button id="nextBtn" class="arrow-btn" aria-label="Older entry">→</button>
+        <button id="lastBtn" class="arrow-btn small" aria-label="Last (oldest) entry">»</button>
+      </div>
     </div>
-
-    <section class="card" id="card">
-      <div class="controls">
-        <input id="newItem" type="text" placeholder="Add a checklist item..." maxlength="120" />
-        <button class="btn" id="addBtn">Add</button>
-      </div>
-      <div class="controls">
-        <button class="btn clear" id="clearDoneBtn">Clear checked</button>
-        <button class="btn reset" id="resetDailyBtn">Reset all checks</button>
-      </div>
-
-      <ul id="list"></ul>
-      <div id="emptyState" class="empty" hidden>No items yet. Add one above.</div>
-
-      <div class="meta">
-        <span id="progress">0 / 0 done</span>
-        <span>Saved automatically</span>
-      </div>
-    </section>
   </main>
 
   <script>
-    const STORAGE_KEY = 'muggzy-daily-checklist-v3';
-    const CELEBRATION_KEY = 'muggzy-daily-checklist-last-celebrated';
+    // ===== CONFIG =====
+    const GITHUB_OWNER = 'colefirlie';
+    const GITHUB_REPO = 'muggzy';
+    const GITHUB_BRANCH = 'main';
+    const POSTS_PATH = 'posts.json';
 
-    const defaultItems = [
-      { text: 'Wake up on time', done: false },
-      { text: 'Drink water', done: false },
-      { text: 'Workout / move', done: false },
-      { text: 'Main priority task', done: false },
-      { text: 'Plan tomorrow', done: false }
-    ];
+    // ===== STATE =====
+    let posts = [];
+    let current = 0; // newest first
+    let adminMode = false;
 
-    const listEl = document.getElementById('list');
-    const emptyStateEl = document.getElementById('emptyState');
-    const progressEl = document.getElementById('progress');
-    const inputEl = document.getElementById('newItem');
-    const addBtn = document.getElementById('addBtn');
-    const clearDoneBtn = document.getElementById('clearDoneBtn');
-    const resetDailyBtn = document.getElementById('resetDailyBtn');
-    const todayEl = document.getElementById('today');
-    const titleEl = document.getElementById('title');
-    const cardEl = document.getElementById('card');
+    // ===== ELEMENTS =====
+    const statusEl = document.getElementById('status');
 
-    function todayString() {
-      const d = new Date();
-      return d.toLocaleDateString(undefined, {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric'
-      });
-    }
-    todayEl.textContent = todayString();
+    const titleEl = document.getElementById('postTitle');
+    const dateEl = document.getElementById('postDate');
+    const bodyEl = document.getElementById('postBody');
+    const countEl = document.getElementById('postCount');
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return structuredClone(defaultItems);
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return structuredClone(defaultItems);
-        return parsed
-          .filter(x => x && typeof x.text === 'string')
-          .map(x => ({ text: x.text.slice(0, 120), done: !!x.done }));
-      } catch {
-        return structuredClone(defaultItems);
-      }
-    }
+    const editorPanel = document.getElementById('editorPanel');
+    const adminBtn = document.getElementById('adminBtn');
+    const editTitle = document.getElementById('editTitle');
+    const editDate = document.getElementById('editDate');
+    const editBody = document.getElementById('editBody');
 
-    let items = loadState();
+    const prevBtns = [document.getElementById('prevBtn'), document.getElementById('prevBtnMobile')];
+    const nextBtns = [document.getElementById('nextBtn'), document.getElementById('nextBtnMobile')];
+    const firstBtns = [document.getElementById('firstBtn'), document.getElementById('firstBtnMobile')];
+    const lastBtns  = [document.getElementById('lastBtn'),  document.getElementById('lastBtnMobile')];
 
-    // Drag state
-    let dragFromIndex = null;
-    let dragOverIndex = null;
-    let dragInsertAfter = false;
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    }
-
-    function allDone() {
-      return items.length > 0 && items.every(i => i.done);
-    }
-
-    function didCelebrateToday() {
-      const last = localStorage.getItem(CELEBRATION_KEY);
-      const today = new Date().toISOString().slice(0, 10);
-      return last === today;
-    }
-
-    function markCelebratedToday() {
-      const today = new Date().toISOString().slice(0, 10);
-      localStorage.setItem(CELEBRATION_KEY, today);
-    }
-
-    // --- Confetti ---
-    function launchConfetti(durationMs = 2400) {
-      const canvas = document.getElementById('confetti');
-      const ctx = canvas.getContext('2d');
-
-      function resize() {
-        canvas.width = window.innerWidth * devicePixelRatio;
-        canvas.height = window.innerHeight * devicePixelRatio;
-        canvas.style.width = window.innerWidth + 'px';
-        canvas.style.height = window.innerHeight + 'px';
-        ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-      }
-
-      resize();
-      canvas.style.display = 'block';
-
-      const palette = ['#b8e8ff', '#ffe4a8', '#ffd6d6', '#e8ffe8', '#ffffff'];
-      const pieces = Array.from({ length: 140 }, () => ({
-        x: Math.random() * window.innerWidth,
-        y: -20 - Math.random() * window.innerHeight * 0.4,
-        r: 4 + Math.random() * 5,
-        w: 6 + Math.random() * 8,
-        h: 8 + Math.random() * 10,
-        vx: -2 + Math.random() * 4,
-        vy: 2 + Math.random() * 5,
-        rot: Math.random() * Math.PI,
-        vr: (-0.15 + Math.random() * 0.3),
-        c: palette[Math.floor(Math.random() * palette.length)],
-        shape: Math.random() < 0.55 ? 'rect' : 'circle'
+    // ===== HELPERS =====
+    function normalizePosts(arr) {
+      const cleaned = (Array.isArray(arr) ? arr : []).map(p => ({
+        title: typeof p.title === 'string' ? p.title : 'Untitled',
+        date: typeof p.date === 'string' ? p.date : '',
+        body: Array.isArray(p.body) ? p.body.filter(s => typeof s === 'string') : []
       }));
-
-      let start = performance.now();
-      let rafId = null;
-
-      function frame(t) {
-        const elapsed = t - start;
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-        for (const p of pieces) {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.03;
-          p.rot += p.vr;
-
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.rot);
-          ctx.fillStyle = p.c;
-
-          if (p.shape === 'rect') {
-            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-          } else {
-            ctx.beginPath();
-            ctx.arc(0, 0, p.r, 0, Math.PI * 2);
-            ctx.fill();
-          }
-          ctx.restore();
-        }
-
-        if (elapsed < durationMs) {
-          rafId = requestAnimationFrame(frame);
-        } else {
-          cancelAnimationFrame(rafId);
-          canvas.style.display = 'none';
-        }
-      }
-
-      window.addEventListener('resize', resize, { once: true });
-      requestAnimationFrame(frame);
+      // Newest-first for ISO-like dates (YYYY-MM-DD)
+      cleaned.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      return cleaned;
     }
 
-    function celebrateIfComplete() {
-      if (!allDone()) {
-        cardEl.classList.remove('celebrate');
-        titleEl.classList.remove('done');
+    async function fetchPosts() {
+      // Cache-bust so updates show quickly
+      const url = `${POSTS_PATH}?v=${Date.now()}`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Could not load ${POSTS_PATH} (HTTP ${res.status})`);
+      const data = await res.json();
+      return normalizePosts(data);
+    }
+
+    function fillEditorFromCurrent() {
+      const post = posts[current];
+      editTitle.value = post.title;
+      editDate.value  = post.date;
+      editBody.value  = post.body.join('\n\n');
+    }
+
+    function editorToPost() {
+      const title = editTitle.value.trim() || 'Untitled';
+      const date  = editDate.value.trim();
+      const body  = editBody.value
+        .split(/\n{2,}|\r\n\r\n/)
+        .map(s => s.trim())
+        .filter(Boolean);
+      return { title, date, body: body.length ? body : [''] };
+    }
+
+    function setAdminUI() {
+      adminBtn.textContent = adminMode ? 'Editing' : 'Edit';
+      editorPanel.classList.toggle('active', adminMode);
+      if (adminMode) fillEditorFromCurrent();
+    }
+
+    function renderPost(scrollTop = false) {
+      if (!posts.length) {
+        titleEl.textContent = 'No posts yet';
+        dateEl.textContent  = '';
+        bodyEl.innerHTML    = '';
+        countEl.textContent = '';
         return;
       }
 
-      titleEl.classList.add('done');
+      const post = posts[current];
+      titleEl.textContent = post.title;
+      dateEl.textContent  = post.date;
+      bodyEl.innerHTML    = '';
 
-      if (!didCelebrateToday()) {
-        markCelebratedToday();
-        cardEl.classList.add('celebrate');
-        launchConfetti(2600);
-        setTimeout(() => {
-          cardEl.classList.remove('celebrate');
-          document.querySelectorAll('li.item.done').forEach(li => li.classList.add('all-done'));
-        }, 2400);
-      } else {
-        document.querySelectorAll('li.item.done').forEach(li => li.classList.add('all-done'));
-      }
-    }
-
-    function updateProgress() {
-      const doneCount = items.filter(i => i.done).length;
-      progressEl.textContent = `${doneCount} / ${items.length} done`;
-    }
-
-    function clearInsertionLines() {
-      document.querySelectorAll('li.item').forEach(el => {
-        el.classList.remove('drop-before', 'drop-after');
-      });
-    }
-
-    function render() {
-      listEl.innerHTML = '';
-      emptyStateEl.hidden = items.length !== 0;
-
-      items.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.className = 'item' + (item.done ? ' done' : '');
-        li.draggable = true;
-        li.dataset.index = String(index);
-        li.setAttribute('role', 'button');
-        li.setAttribute('tabindex', '0');
-        li.setAttribute('aria-pressed', item.done ? 'true' : 'false');
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'check';
-        checkbox.checked = item.done;
-
-        const span = document.createElement('span');
-        span.className = 'text';
-        span.textContent = item.text;
-
-        const del = document.createElement('button');
-        del.className = 'delete';
-        del.type = 'button';
-        del.setAttribute('aria-label', `Delete ${item.text}`);
-        del.textContent = '×';
-
-        // Click anywhere on item toggles, except delete button / checkbox
-        li.addEventListener('click', (e) => {
-          if (e.target === del) return;
-          if (e.target === checkbox) return;
-          checkbox.checked = !checkbox.checked;
-          items[index].done = checkbox.checked;
-          saveState();
-          render();
-        });
-
-        // Keyboard toggle
-        li.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            checkbox.checked = !checkbox.checked;
-            items[index].done = checkbox.checked;
-            saveState();
-            render();
-          }
-        });
-
-        checkbox.addEventListener('change', () => {
-          items[index].done = checkbox.checked;
-          saveState();
-          render();
-        });
-
-        del.addEventListener('click', (e) => {
-          e.stopPropagation();
-          items.splice(index, 1);
-          saveState();
-          render();
-        });
-
-        // Drag & drop reorder with insertion line
-        li.addEventListener('dragstart', () => {
-          dragFromIndex = index;
-          li.classList.add('dragging');
-        });
-
-        li.addEventListener('dragend', () => {
-          dragFromIndex = null;
-          dragOverIndex = null;
-          dragInsertAfter = false;
-          li.classList.remove('dragging');
-          clearInsertionLines();
-        });
-
-        li.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          if (dragFromIndex === null) return;
-
-          const rect = li.getBoundingClientRect();
-          const midY = rect.top + rect.height / 2;
-          const after = e.clientY > midY;
-
-          dragOverIndex = index;
-          dragInsertAfter = after;
-
-          clearInsertionLines();
-          li.classList.add(after ? 'drop-after' : 'drop-before');
-        });
-
-        li.addEventListener('dragleave', () => {
-          li.classList.remove('drop-before', 'drop-after');
-        });
-
-        li.addEventListener('drop', (e) => {
-          e.preventDefault();
-          if (dragFromIndex === null || dragOverIndex === null) return;
-
-          const from = dragFromIndex;
-          const over = dragOverIndex;
-          const insertAfter = dragInsertAfter;
-
-          clearInsertionLines();
-
-          let insertIndex = over + (insertAfter ? 1 : 0);
-          if (from < insertIndex) insertIndex -= 1;
-          insertIndex = Math.max(0, Math.min(items.length, insertIndex));
-
-          const moved = items.splice(from, 1)[0];
-          items.splice(insertIndex, 0, moved);
-
-          saveState();
-          render();
-        });
-
-        li.appendChild(checkbox);
-        li.appendChild(span);
-        li.appendChild(del);
-        listEl.appendChild(li);
+      post.body.forEach(par => {
+        const p = document.createElement('p');
+        p.textContent = par;
+        bodyEl.appendChild(p);
       });
 
-      updateProgress();
+      countEl.textContent = `Entry ${current + 1} of ${posts.length}`;
 
-      if (allDone()) {
-        document.querySelectorAll('li.item.done').forEach(li => li.classList.add('all-done'));
-      }
+      const atNewest = current === 0;
+      const atOldest = current === posts.length - 1;
 
-      celebrateIfComplete();
+      prevBtns.forEach(btn => btn.disabled = atNewest);
+      firstBtns.forEach(btn => btn.disabled = atNewest);
+      nextBtns.forEach(btn => btn.disabled = atOldest);
+      lastBtns.forEach(btn => btn.disabled = atOldest);
+
+      if (adminMode) fillEditorFromCurrent();
+      if (scrollTop) window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function addItem() {
-      const text = inputEl.value.trim();
-      if (!text) return;
-      items.push({ text, done: false });
-      inputEl.value = '';
-      saveState();
-      render();
-      inputEl.focus();
+    function goPrev()  { if (current > 0) { current -= 1; renderPost(true); } }
+    function goNext()  { if (current < posts.length - 1) { current += 1; renderPost(true); } }
+    function goFirst() { if (current !== 0) { current = 0; renderPost(true); } }
+    function goLast()  { if (current !== posts.length - 1) { current = posts.length - 1; renderPost(true); } }
+
+    prevBtns.forEach(btn => btn.addEventListener('click', goPrev));
+    nextBtns.forEach(btn => btn.addEventListener('click', goNext));
+    firstBtns.forEach(btn => btn.addEventListener('click', goFirst));
+    lastBtns.forEach(btn => btn.addEventListener('click', goLast));
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+      if (e.key === 'Home') goFirst();
+      if (e.key === 'End') goLast();
+    });
+
+    function b64EncodeUnicode(str) {
+      return btoa(unescape(encodeURIComponent(str)));
     }
 
-    addBtn.addEventListener('click', addItem);
-    inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') addItem();
+    async function getCurrentFileSha(token) {
+      const api = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${POSTS_PATH}?ref=${GITHUB_BRANCH}`;
+      const res = await fetch(api, {
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`GitHub read failed (HTTP ${res.status})`);
+      const json = await res.json();
+      return json.sha || null;
+    }
+
+    async function commitPostsToGitHub(token, newPosts) {
+      const sha = await getCurrentFileSha(token);
+      const api = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${POSTS_PATH}`;
+      const content = JSON.stringify(newPosts, null, 2) + '\n';
+      const payload = {
+        message: `Update ${POSTS_PATH} via blog editor`,
+        content: b64EncodeUnicode(content),
+        branch: GITHUB_BRANCH,
+        ...(sha ? { sha } : {})
+      };
+
+      const res = await fetch(api, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`GitHub write failed (HTTP ${res.status}). ${text}`);
+      }
+    }
+
+    // ===== EDIT UI =====
+    adminBtn.addEventListener('click', () => {
+      adminMode = !adminMode;
+      setAdminUI();
     });
 
-    clearDoneBtn.addEventListener('click', () => {
-      items = items.filter(item => !item.done);
-      saveState();
-      render();
+    document.getElementById('saveDraftBtn').addEventListener('click', () => {
+      if (!adminMode) return;
+      posts[current] = editorToPost();
+      posts = normalizePosts(posts);
+      current = 0;
+      statusEl.textContent = 'Draft updated (not published)';
+      renderPost();
     });
 
-    resetDailyBtn.addEventListener('click', () => {
-      items = items.map(item => ({ ...item, done: false }));
-      saveState();
-      render();
+    document.getElementById('newPostBtn').addEventListener('click', () => {
+      if (!adminMode) return;
+      const todayISO = new Date().toISOString().slice(0, 10);
+      posts.unshift({ title: 'New Post', date: todayISO, body: ['Write here...'] });
+      posts = normalizePosts(posts);
+      current = 0;
+      statusEl.textContent = 'New post created (not published)';
+      renderPost();
     });
 
-    // Allow dropping at end by dragging below the last item
-    listEl.addEventListener('dragover', (e) => {
-      if (dragFromIndex === null) return;
-      e.preventDefault();
+    document.getElementById('deletePostBtn').addEventListener('click', () => {
+      if (!adminMode || posts.length <= 1) return;
+      if (!confirm('Delete this post?')) return;
+      posts.splice(current, 1);
+      if (current >= posts.length) current = posts.length - 1;
+      statusEl.textContent = 'Post deleted (not published)';
+      renderPost();
+    });
 
-      const last = listEl.querySelector('li.item:last-child');
-      if (!last) return;
-      const rect = last.getBoundingClientRect();
-      if (e.clientY > rect.bottom) {
-        document.querySelectorAll('li.item').forEach(el => el.classList.remove('drop-before', 'drop-after'));
-        last.classList.add('drop-after');
-        dragOverIndex = items.length - 1;
-        dragInsertAfter = true;
+    document.getElementById('exitEditBtn').addEventListener('click', () => {
+      adminMode = false;
+      setAdminUI();
+      statusEl.textContent = 'Viewing';
+    });
+
+    document.getElementById('publishBtn').addEventListener('click', async () => {
+      if (!adminMode) return;
+
+      posts[current] = editorToPost();
+      posts = normalizePosts(posts);
+      current = 0;
+      renderPost();
+
+      const token = window.prompt(
+        'Paste a GitHub fine-grained token with Contents: Read & Write for this repo.\n' +
+        'It will NOT be saved — used once to commit posts.json.'
+      );
+      if (!token) return;
+
+      statusEl.textContent = 'Publishing…';
+      try {
+        await commitPostsToGitHub(token.trim(), posts);
+        statusEl.textContent = 'Published! (Committed to posts.json)';
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `Publish failed: ${err.message}`;
+        alert('Publish failed. Open console for details. Common causes: token permissions, wrong repo/branch, or Cloudflare caching.');
       }
     });
 
-    render();
+    // ===== BOOT =====
+    (async () => {
+      try {
+        posts = await fetchPosts();
+        current = 0;
+        statusEl.textContent = 'Viewing';
+        setAdminUI();
+        renderPost();
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `Error: ${err.message}`;
+        posts = normalizePosts([{ title: 'Could not load posts.json', date: '', body: [String(err.message)] }]);
+        current = 0;
+        setAdminUI();
+        renderPost();
+      }
+    })();
   </script>
 </body>
 </html>
