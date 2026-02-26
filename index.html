@@ -5,64 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Hub</title>
   <style>
-    :root {
-      --bg: #ececec;
-      --ink: #111;
-      --shadow: -10px 10px 0 var(--ink);
-      --maxw: 1100px;
+    :root{
+      --bg:#ececec;
+      --ink:#111;
+      --shadow:-10px 10px 0 var(--ink);
+      --maxw:1100px;
 
-      /* tweak these if you want it tighter/looser */
-      --logoW: min(520px, 92vw);
-      --charW: min(260px, 60vw); /* same size for top + bottom characters */
+      /* sizing */
+      --logoW: min(728px, 92vw);   /* ~40% bigger than before */
+      --charW: min(260px, 60vw);   /* keep top & bottom same size */
+
+      /* spacing rhythm */
+      --gap: 26px;                /* “base” gap between layers */
+      --gap-small: calc(var(--gap) * 0.85); /* top-character -> boxes (15% smaller) */
+      --gap-big:   calc(var(--gap) * 1.15); /* boxes -> bottom-character (15% larger) */
     }
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
+    *{ box-sizing:border-box; }
+    html,body{ margin:0; padding:0; }
 
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
-      min-height: 100vh;
+    body{
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Comic Sans MS","Trebuchet MS",system-ui,sans-serif;
+      min-height:100vh;
     }
 
-    /* Slightly taller than viewport so you scroll a bit to see the bottom character */
-    main.wrap {
-      width: 100%;
-      max-width: var(--maxw);
-      margin: 0 auto;
-      padding: 24px 16px 56px;
-      text-align: center;
+    /* slightly taller than viewport so you scroll a bit to fully see bottom character */
+    main.wrap{
+      width:100%;
+      max-width:var(--maxw);
+      margin:0 auto;
+      padding:24px 16px 56px;
+      text-align:center;
 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
 
-      min-height: 112vh;
+      min-height:112vh;
     }
 
-    .logo {
-      margin-top: 4px;
-      margin-bottom: 18px;
+    /* LOGO */
+    .logo{ margin: 4px 0 var(--gap); }
+    .logo img{
+      width:var(--logoW);
+      height:auto;
+      display:block;
+      margin:0 auto;
     }
 
-    .logo img {
-      width: var(--logoW);
-      height: auto;
-      display: block;
-      margin: 0 auto;
-    }
-
-    /* Optional fallback if logo.png missing */
-    .logo-text {
-      font-size: clamp(52px, 10vw, 100px);
-      line-height: 0.95;
-      margin: 0;
-      letter-spacing: 2px;
-      font-weight: 800;
-      text-transform: uppercase;
-      display: none;
-      color: #f5f5f5;
+    .logo-text{
+      font-size:clamp(52px,10vw,100px);
+      line-height:0.95;
+      margin:0;
+      letter-spacing:2px;
+      font-weight:800;
+      text-transform:uppercase;
+      display:none;
+      color:#f5f5f5;
       text-shadow:
         2px 2px 0 var(--ink),
         -2px 2px 0 var(--ink),
@@ -70,74 +71,79 @@
         -2px -2px 0 var(--ink);
     }
 
-    .hero {
-      margin: 2px auto 14px;
+    /* TOP CHARACTER */
+    .hero{ margin: 0 0 var(--gap-small); }
+    .doodle{
+      width:var(--charW);
+      height:auto;
+      display:block;
+      margin:0 auto;
     }
 
-    /* same class used for top & bottom character */
-    .doodle {
-      width: var(--charW);
-      height: auto;
-      display: block;
-      margin: 0 auto;
+    /* BUTTONS */
+    .links{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:28px;                 /* more spaced apart */
+      flex-wrap:wrap;
+      margin:0;                 /* we control spacing via gaps above/below */
     }
 
-    .links {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 18px;
-      flex-wrap: wrap;
-      margin: 10px auto 0;
-    }
+    .btn{
+      --btn-bg:#ff7a7a;
+      display:inline-block;
 
-    .btn {
-      --btn-bg: #ff7a7a;
-      display: inline-block;
-      min-width: 170px;
-      padding: 14px 20px;
-      text-decoration: none;
-      color: var(--ink);
-      font-size: 1.05rem;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      background: var(--btn-bg);
-      border: 3px solid var(--ink);
-      box-shadow: var(--shadow);
+      min-width: 220px;         /* larger boxes */
+      padding: 18px 28px;       /* larger boxes */
+      font-size: 1.15rem;
+
+      text-decoration:none;
+      color:var(--ink);
+      letter-spacing:0.5px;
+      text-transform:uppercase;
+
+      background:var(--btn-bg);
+      border:3px solid var(--ink);
+      box-shadow:var(--shadow);
+
       transform: rotate(-1deg);
       transition: transform 120ms ease;
     }
 
-    .btn:nth-child(2) { transform: rotate(1deg); }
-    .btn:nth-child(3) { transform: rotate(-2deg); }
+    .btn:nth-child(2){ transform: rotate(1deg); }
+    .btn:nth-child(3){ transform: rotate(-2deg); }
 
     .btn:hover,
-    .btn:focus-visible {
+    .btn:focus-visible{
       transform: translateY(-2px) rotate(0deg);
-      outline: none;
+      outline:none;
     }
 
-    .btn.blog { --btn-bg: #ff7f7f; }
-    .btn.letterboxd { --btn-bg: #8eb4bd; }
-    .btn.checklist { --btn-bg: #c5ef62; }
+    .btn.blog{ --btn-bg:#ff7f7f; }
+    .btn.letterboxd{ --btn-bg:#8eb4bd; }
+    .btn.checklist{ --btn-bg:#c5ef62; }
 
-    /* Push bottom character down so it’s just below the fold */
-    .footer-art {
-      margin-top: auto;
-      padding-top: 46px;
+    /* BOTTOM CHARACTER */
+    .footer-art{
+      margin-top:auto;          /* keep your “just a bit of scroll” behavior */
+      padding-top:var(--gap-big); /* 15% larger gap vs others */
     }
 
-    @media (max-width: 640px) {
-      main.wrap {
-        padding-top: 18px;
-        min-height: 114vh;
+    @media (max-width:640px){
+      main.wrap{
+        padding-top:18px;
+        min-height:114vh;
       }
-      .links { gap: 14px; }
-      .btn {
-        min-width: 150px;
-        font-size: 1rem;
-        padding: 12px 16px;
+      .links{ gap:18px; }
+      .btn{
+        min-width: 180px;
+        padding: 14px 18px;
+        font-size: 1.05rem;
         box-shadow: -8px 8px 0 var(--ink);
+      }
+      :root{
+        --logoW: min(680px, 96vw); /* keep logo big on phones too */
       }
     }
   </style>
