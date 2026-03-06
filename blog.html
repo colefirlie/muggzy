@@ -246,6 +246,21 @@
   </style>
 </head>
 <body>
+  <script>
+  // SIMPLE GATE (not secure on a static site)
+  const BLOG_PASS = "dontreadmyjournalpls";
+  const key = "muggzy_blog_authed";
+
+  const ok = sessionStorage.getItem(key) === "1" ||
+    prompt("Password:") === BLOG_PASS;
+
+  if (ok) {
+    sessionStorage.setItem(key, "1");
+  } else {
+    // kick back to home if wrong/cancel
+    location.href = "index.html";
+  }
+</script>
   <header class="site-header">
     <div class="site-header-inner">
       <a class="brand" href="index.html">Cole Firlie</a>
